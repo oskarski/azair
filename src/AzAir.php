@@ -214,7 +214,7 @@ class AzAir
 
             echo count($citiesData[$destination]);
 
-            sleep(1);
+            sleep(2);
         }
 
         $this->generateResultHtmlFile($citiesData);
