@@ -337,6 +337,6 @@ $config = [
     ],
 ];
 $azAir = new AzAir($countriesProvider->getCountries(), $config);
-$azAir->run();
+$azAir->run(true);
 //(new Booking())->run();
 echo "END";

@@ -177,7 +177,8 @@ class AzAir
                                 <?php echo $city['to'] ?>
                             </td>
                             <td>
-                                <?php echo number_format(Carbon::parse($city['carbonFrom'])->diffInMilliseconds($city['carbonTo']) / (1000 * 60 * 60 * 24), 2); ?> days
+                                <?php echo number_format(Carbon::parse($city['carbonFrom'])->diffInMilliseconds($city['carbonTo']) / (1000 * 60 * 60 * 24), 2); ?>
+                                days
                             </td>
                             <td>
                                 <?php echo $cityName; ?>
@@ -189,7 +190,8 @@ class AzAir
                                 <?php echo $city['price']; ?>
                             </td>
                             <td>
-                                <a href="https://www.azair.eu/<?php echo $city['fromLink']; ?>" target="_blank" referrerpolicy="no-referrer">BUY</a>
+                                <a href="https://www.azair.eu/<?php echo $city['fromLink']; ?>" target="_blank"
+                                   referrerpolicy="no-referrer">BUY</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -201,20 +203,29 @@ class AzAir
         <?php file_put_contents(__DIR__ . '/index.html', ob_get_clean());
     }
 
-    public function run()
+    public function run($useCachedFilesOnly = false)
     {
         $citiesData = [];
 
         foreach ($this->destinations as $destination) {
             echo "\n=== $destination ===\n";
 
-            $html = $this->doRequest(urlencode($destination));
-            file_put_contents('out/' . $destination . '.html', $html);
+            $html = '';
+            $filename = 'out/' . $destination . '.html';
+
+            if ($useCachedFilesOnly) {
+                if (!file_exists($filename)) continue;
+                $html = file_get_contents($filename);
+            } else {
+                $html = $this->doRequest(urlencode($destination));
+                file_put_contents($filename, $html);
+            }
+
             $citiesData[$destination] = $this->parseHtml($html);
 
             echo count($citiesData[$destination]);
 
-            sleep(2);
+            if (!$useCachedFilesOnly) sleep(2);
         }
 
         $this->generateResultHtmlFile($citiesData);
