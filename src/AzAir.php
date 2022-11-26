@@ -64,7 +64,7 @@ class AzAir
         return $weekDays[$date->dayOfWeek] . ' ' . $date->format('d.m H:i');
     }
 
-    private function doRequest($destination, $waitTime = 3): string
+    private function doRequest($destination, $waitTime = 2): string
     {
         $res = (new Client())->request(
             'GET',
@@ -75,11 +75,11 @@ class AzAir
         $html = $res->getBody()->getContents();
 
         if (str_contains($html, "Nasza wyszukiwarka nie jest w stanie odpowiedzieć na zapytanie w odpowiednim czasie") || str_contains($html, "Our search engine is not able to answer your query in a timely manner")) {
-            echo "Need to wait, because server is overloaded!\n";
+            echo "Need to wait, because server is overloaded! Waiting " .  $waitTime ."s ...\n";
 
             sleep($waitTime);
 
-            return $this->doRequest($destination, $waitTime + 2);
+            return $this->doRequest($destination, $waitTime * 2);
         }
 
         return $html;
