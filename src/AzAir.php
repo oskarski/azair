@@ -233,7 +233,7 @@ class AzAir
 
                 echo count($citiesData[$destination]);
 
-                if (!$this->useCachedFilesOnly) sleep(2);
+                if (!$this->useCachedFilesOnly) sleep(5);
             }
         }
 
