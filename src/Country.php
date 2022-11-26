@@ -6,6 +6,7 @@ class Country
     private $name;
     private $airports;
     private $skip = false;
+    private $maxPrice = null;
 
     public function __construct(string $name, array $airports)
     {
@@ -39,5 +40,17 @@ class Country
     public function shouldSkip(): bool
     {
         return $this->skip;
+    }
+
+    public function setMaxPrice($maxPrice): Country
+    {
+        $this->maxPrice = $maxPrice;
+
+        return $this;
+    }
+
+    public function getMaxPrice()
+    {
+        return $this->maxPrice;
     }
 }

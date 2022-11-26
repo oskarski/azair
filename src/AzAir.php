@@ -8,7 +8,8 @@ use PHPHtmlParser\Dom;
 
 class AzAir
 {
-    private $destinations = [];
+    private $onlyCapitals;
+    private $countries;
     private $maxPrice;
     private $maxStayPeriod;
     private $minStayPeriod;
@@ -30,7 +31,7 @@ class AzAir
      */
     public function __construct(array $countries, array $config)
     {
-        $onlyCapitals = $config['onlyCapitals'] ?? false;
+        $this->onlyCapitals = $config['onlyCapitals'] ?? false;
         $this->maxPrice = $config['maxPrice'] ?? 300;
         $this->minStayPeriod = $config['minStayPeriod'] ?? 2;
         $this->maxStayPeriod = $config['maxStayPeriod'] ?? 5;
@@ -39,20 +40,8 @@ class AzAir
         $this->onlyWeekends = $config['onlyWeekends'] ?? false;
         $this->exceptionDays = $config['exceptionDays'] ?? [];
         $this->useCachedFilesOnly = $config['useCachedFilesOnly'] ?? false;
+        $this->countries = $countries;
 
-        /** @var Country $country */
-        foreach ($countries as $country) {
-            if ($country->shouldSkip()) continue;
-
-            /** @var Airport $airport */
-            foreach ($country->getAirports() as $airport) {
-                if ($airport->shouldSkip()) continue;
-
-                if (($onlyCapitals && $airport->isCapital()) || !$onlyCapitals) {
-                    $this->destinations[] = $airport->getName();
-                }
-            }
-        }
     }
 
     private function convertStringDateTimeToCarbon(string $stringDate, string $time)
@@ -81,7 +70,7 @@ class AzAir
         $html = $res->getBody()->getContents();
 
         if (str_contains($html, "Nasza wyszukiwarka nie jest w stanie odpowiedzieć na zapytanie w odpowiednim czasie") || str_contains($html, "Our search engine is not able to answer your query in a timely manner")) {
-            echo "Need to wait, because server is overloaded! Waiting " .  $waitTime ."s ...\n";
+            echo "Need to wait, because server is overloaded! Waiting " . $waitTime . "s ...\n";
 
             sleep($waitTime);
 
@@ -110,12 +99,15 @@ class AzAir
         return $res;
     }
 
-    private function arePriceFiltersValid($price): bool
+    private function arePriceFiltersValid($price, Country $country): bool
     {
+        if ($country->getMaxPrice()) return $price < $country->getMaxPrice();
+
+
         return $price < $this->maxPrice;
     }
 
-    private function parseHtml($html)
+    private function parseHtml($html, Country $country)
     {
         $htmlDom = new Dom();
         $htmlDom->load($html);
@@ -129,7 +121,7 @@ class AzAir
 
             $price = intval(str_replace(' zł', '', $htmlDomNode->find('.text .totalPrice .tp')->text));
 
-            if ($this->areTimeFiltersValid($from, $to) && $this->arePriceFiltersValid($price)) {
+            if ($this->areTimeFiltersValid($from, $to) && $this->arePriceFiltersValid($price, $country)) {
                 $citiesData[] = [
                     'carbonFrom' => $from,
                     'carbonTo' => $to,
@@ -213,26 +205,38 @@ class AzAir
     {
         $citiesData = [];
 
-        foreach ($this->destinations as $destination) {
-            echo "\n=== $destination ===\n";
+        /** @var Country $country */
+        foreach ($this->countries as $country) {
+            if ($country->shouldSkip()) continue;
 
-            $html = '';
-            $filename = 'out/' . $destination . '.html';
+            /** @var Airport $airport */
+            foreach ($country->getAirports() as $airport) {
+                if ($airport->shouldSkip()) continue;
+                if ($this->onlyCapitals && !$airport->isCapital()) continue;
 
-            if ($this->useCachedFilesOnly) {
-                if (!file_exists($filename)) continue;
-                $html = file_get_contents($filename);
-            } else {
-                $html = $this->doRequest(urlencode($destination));
-                file_put_contents($filename, $html);
+                $destination = $airport->getName();
+
+                echo "\n=== $destination ===\n";
+
+                $html = '';
+                $filename = 'out/' . $destination . '.html';
+
+                if ($this->useCachedFilesOnly) {
+                    if (!file_exists($filename)) continue;
+                    $html = file_get_contents($filename);
+                } else {
+                    $html = $this->doRequest(urlencode($destination));
+                    file_put_contents($filename, $html);
+                }
+
+                $citiesData[$destination] = $this->parseHtml($html, $country);
+
+                echo count($citiesData[$destination]);
+
+                if (!$this->useCachedFilesOnly) sleep(2);
             }
-
-            $citiesData[$destination] = $this->parseHtml($html);
-
-            echo count($citiesData[$destination]);
-
-            if (!$this->useCachedFilesOnly) sleep(2);
         }
+
 
         $this->generateResultHtmlFile($citiesData);
     }
