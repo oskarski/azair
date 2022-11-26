@@ -42,6 +42,8 @@ class AzAir
 
         /** @var Country $country */
         foreach ($countries as $country) {
+            if ($country->shouldSkip()) continue;
+
             /** @var Airport $airport */
             foreach ($country->getAirports() as $airport) {
                 if (($onlyCapitals && $airport->isCapital()) || !$onlyCapitals) {
