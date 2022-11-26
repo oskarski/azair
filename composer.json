@@ -1,0 +1,23 @@
+{
+  "name": "oskarkupski/flight-scrapper",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Oskar Kupski",
+      "email": "oskar.kupski@gmail.com"
+    }
+  ],
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "autoload": {
+    "psr-4": { "" : "src/" }
+  },
+  "require": {
+    "vlucas/phpdotenv": "^2.5",
+    "symfony/var-dumper": "^4.1",
+    "guzzlehttp/guzzle": "^6.3",
+    "paquettg/php-html-parser": "^2.0",
+    "nesbot/carbon": "^2.16"
+  }
+}
