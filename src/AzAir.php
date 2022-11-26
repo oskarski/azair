@@ -118,7 +118,8 @@ class AzAir
         foreach ($htmlDom->find('.result') as $htmlDomNode) {
             $from = $this->convertStringDateTimeToCarbon($htmlDomNode->find('.text > p .date')[0]->text, $htmlDomNode->find('.text > p .from > strong')[0]->text);
             $to = $this->convertStringDateTimeToCarbon($htmlDomNode->find('.text > p .date')[1]->text, substr($htmlDomNode->find('.text > p .to')[1]->text, 0, 5));
-            $airline = $htmlDomNode->find('.text airline')->text;
+
+            $airline = $htmlDomNode->find('.text .detail .airline')[0]->text;
 
             $price = intval(str_replace(' zł', '', $htmlDomNode->find('.text .totalPrice .tp')->text));
 
