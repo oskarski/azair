@@ -120,6 +120,17 @@ class AzAir
             $airline = $htmlDomNode->find('.text .detail .airline')[0]->text;
 
             $price = intval(str_replace(' zł', '', $htmlDomNode->find('.text .totalPrice .tp')->text));
+            $fromLink = $htmlDomNode->find('.text .detail a.bt.blue')->getAttribute('href');
+            $isDuplicate = false;
+
+            foreach ($citiesData as $cityData) {
+                if ($cityData['fromLink'] === $fromLink) {
+                    $isDuplicate = true;
+                    break;
+                }
+            }
+
+            if ($isDuplicate) continue;
 
             if ($this->areTimeFiltersValid($from, $to) && $this->arePriceFiltersValid($price, $country)) {
                 $citiesData[] = [
@@ -127,7 +138,7 @@ class AzAir
                     'carbonTo' => $to,
                     'from' => $this->formatDate($from),
                     'to' => $this->formatDate($to),
-                    'fromLink' => $htmlDomNode->find('.text .detail a.bt.blue')->getAttribute('href'),
+                    'fromLink' => $fromLink,
                     'airline' => $airline,
                     'price' => $price,
                 ];
