@@ -16,6 +16,7 @@ class AzAir
     private $to;
     private $onlyWeekends;
     private $exceptionDays;
+    private $useCachedFilesOnly;
 
     const CURRENCY = 'PLN';
 
@@ -37,6 +38,7 @@ class AzAir
         $this->to = $config['to'] ?? (new Carbon())->addDays(31)->format('d.m.Y');
         $this->onlyWeekends = $config['onlyWeekends'] ?? false;
         $this->exceptionDays = $config['exceptionDays'] ?? [];
+        $this->useCachedFilesOnly = $config['useCachedFilesOnly'] ?? false;
 
         /** @var Country $country */
         foreach ($countries as $country) {
@@ -203,7 +205,7 @@ class AzAir
         <?php file_put_contents(__DIR__ . '/index.html', ob_get_clean());
     }
 
-    public function run($useCachedFilesOnly = false)
+    public function run()
     {
         $citiesData = [];
 
@@ -213,7 +215,7 @@ class AzAir
             $html = '';
             $filename = 'out/' . $destination . '.html';
 
-            if ($useCachedFilesOnly) {
+            if ($this->useCachedFilesOnly) {
                 if (!file_exists($filename)) continue;
                 $html = file_get_contents($filename);
             } else {
@@ -225,7 +227,7 @@ class AzAir
 
             echo count($citiesData[$destination]);
 
-            if (!$useCachedFilesOnly) sleep(2);
+            if (!$this->useCachedFilesOnly) sleep(2);
         }
 
         $this->generateResultHtmlFile($citiesData);

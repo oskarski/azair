@@ -2,3 +2,5 @@ vendor
 out
 src/index.html
 .idea
+
+config.php
