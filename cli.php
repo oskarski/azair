@@ -235,6 +235,11 @@ $usa = new Country('USA', [
     new Airport('LAS'),
     new Airport('MCO'),
 ]);
+$island = new Country('Island', [
+    new Airport('AEY'),
+    new Airport('EGS'),
+    new Airport('KEF', true),
+]);
 
 $countries = [
 //    $holland,
@@ -248,6 +253,7 @@ $countries = [
 //    $cyprus,
     $turkey,
     $morocco,
+    $island,
 //    $usa,
 //	new Country('Hungary', [
 //		new Airport('Budapest [BUD]', true)
@@ -264,9 +270,6 @@ $countries = [
 //	new Country('Georgia', [
 //		new Airport('Tbilisi [TBS]', true),
 //		new Airport('Kutaisi [KUT]'),
-//	]),
-//	new Country('Island', [
-//		new Airport('Reykjavik [RKV] (+KEF)', true),
 //	])
 ];
 $onlyCapitals = false;
