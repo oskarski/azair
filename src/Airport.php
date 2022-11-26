@@ -1,6 +1,7 @@
 <?php
 
-class Airport {
+class Airport
+{
     private static $citiesByAirportCode = [
         "AEY" => "Akureyri",
         "EGS" => "Egilsstadir",
@@ -559,32 +560,48 @@ class Airport {
         "BDL" => "Bradley",
         "MCO" => "Orlando",
     ];
-	private $airportCode;
-	private $name;
-	private $isCapital;
+    private $airportCode;
+    private $name;
+    private $isCapital;
+    private $skip = false;
 
-	public function __construct(string $airportCode, bool $isCapital = false) {
-	    $this->airportCode = $airportCode;
+    public function __construct(string $airportCode, bool $isCapital = false)
+    {
+        $this->airportCode = $airportCode;
 
-	    $city = self::$citiesByAirportCode[$this->airportCode];
+        $city = self::$citiesByAirportCode[$this->airportCode];
 
-	    if (!$city) throw new Exception('Unknown airport code: "' . $airportCode . '"!');
+        if (!$city) throw new Exception('Unknown airport code: "' . $airportCode . '"!');
 
-		$this->name = "$city [$airportCode]";
-		$this->isCapital = $isCapital;
-	}
+        $this->name = "$city [$airportCode]";
+        $this->isCapital = $isCapital;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getName(): string {
-		return $this->name;
-	}
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isCapital(): bool {
-		return $this->isCapital;
-	}
+    /**
+     * @return bool
+     */
+    public function isCapital(): bool
+    {
+        return $this->isCapital;
+    }
+
+    public function skip(): Airport
+    {
+        $this->skip = true;
+
+        return $this;
+    }
+
+    public function shouldSkip(): bool
+    {
+        return $this->skip;
+    }
 }

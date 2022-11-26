@@ -46,6 +46,8 @@ class AzAir
 
             /** @var Airport $airport */
             foreach ($country->getAirports() as $airport) {
+                if ($airport->shouldSkip()) continue;
+
                 if (($onlyCapitals && $airport->isCapital()) || !$onlyCapitals) {
                     $this->destinations[] = $airport->getName();
                 }
